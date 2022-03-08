@@ -1,20 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
+import TabNavigator from "./app/navigation/TabNavigator";
+import NoInternet from "./app/components/NoInternet";
+import { useNetInfo } from "@react-native-community/netinfo";
 
-export default function App() {
+const App = () => {
+  const [noInternet, setNoInternet] = useState(false);
+  const netInfo = useNetInfo();
+
+  const fetchnetInfo = () => {
+    const { isConnected, isInternetReachable } = netInfo;
+    if (isConnected === false && isInternetReachable === false)
+      setNoInternet(true);
+    else setNoInternet(false);
+  };
+
+  useEffect(() => {
+    fetchnetInfo();
+  }, [netInfo]);
+
+  if (noInternet) return <NoInternet onRefreshPress={fetchnetInfo} />;
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer
+      theme={{
+        ...DefaultTheme,
+        colors: { ...DefaultTheme.colors, background: "#fff" },
+      }}
+    >
+      <TabNavigator />
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
